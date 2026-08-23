@@ -1,0 +1,448 @@
+<div class="booking-page">
+
+  <aside class="sidebar">
+
+    <div class="brand">
+
+      <div class="brand-icon">
+        P
+      </div>
+
+      <div>
+        <strong>ParkEvent</strong>
+        <span>Customer Portal</span>
+      </div>
+
+    </div>
+
+
+    <nav class="sidebar-nav">
+
+      <button
+        type="button"
+        class="nav-item"
+        (click)="goToDashboard()"
+      >
+        ◈ Dashboard
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        (click)="goToEvents()"
+      >
+        ◇ Events
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item active"
+      >
+        ▣ My Bookings
+      </button>
+
+
+      <div class="nav-divider">
+      </div>
+
+
+      <div class="account">
+
+        <small>
+          SIGNED IN AS
+        </small>
+
+        <strong>
+          {{ fullName }}
+        </strong>
+
+        <span>
+          {{ email }}
+        </span>
+
+      </div>
+
+    </nav>
+
+
+    <button
+      type="button"
+      class="logout-button"
+      (click)="logout()"
+    >
+      ↪ Logout
+    </button>
+
+  </aside>
+
+
+  <main class="main-content">
+
+    <header class="page-header">
+
+      <div>
+
+        <span class="kicker">
+          MY BOOKINGS
+        </span>
+
+        <h1>
+          Your reservations
+        </h1>
+
+        <p>
+          Review your event bookings,
+          payment status and booking history.
+        </p>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="refresh-button"
+        (click)="loadBookings()"
+        [disabled]="isLoading()"
+      >
+        ↻ Refresh
+      </button>
+
+    </header>
+
+
+    @if (successMessage()) {
+
+      <div class="message success">
+
+        ✓ {{ successMessage() }}
+
+      </div>
+
+    }
+
+
+    @if (errorMessage()) {
+
+      <div class="message error">
+
+        <span>
+          ! {{ errorMessage() }}
+        </span>
+
+        <button
+          type="button"
+          (click)="loadBookings()"
+        >
+          Retry
+        </button>
+
+      </div>
+
+    }
+
+
+    @if (isLoading()) {
+
+      <section class="loading">
+
+        <div class="spinner">
+        </div>
+
+        <h2>
+          Loading your bookings
+        </h2>
+
+        <p>
+          Checking your latest
+          reservation details...
+        </p>
+
+      </section>
+
+    }
+
+    @else {
+
+      <section class="summary-grid">
+
+        <article class="summary-card">
+
+          <span>
+            Total bookings
+          </span>
+
+          <strong>
+            {{ bookings().length }}
+          </strong>
+
+        </article>
+
+
+        <article class="summary-card">
+
+          <span>
+            Active bookings
+          </span>
+
+          <strong>
+            {{ activeBookings().length }}
+          </strong>
+
+        </article>
+
+
+        <article class="summary-card">
+
+          <span>
+            Cancelled
+          </span>
+
+          <strong>
+            {{ cancelledBookings().length }}
+          </strong>
+
+        </article>
+
+
+        <article class="summary-card">
+
+          <span>
+            Paid total
+          </span>
+
+          <strong>
+            $
+            {{
+              totalSpent()
+                | number:'1.2-2'
+            }}
+          </strong>
+
+        </article>
+
+      </section>
+
+
+      @if (
+        bookings().length === 0
+      ) {
+
+        <section class="empty-state">
+
+          <div class="empty-icon">
+            ◇
+          </div>
+
+          <h2>
+            No bookings yet
+          </h2>
+
+          <p>
+            Browse upcoming events
+            to start your first booking.
+          </p>
+
+          <button
+            type="button"
+            (click)="goToEvents()"
+          >
+            Browse events
+          </button>
+
+        </section>
+
+      }
+
+      @else {
+
+        <section class="booking-list">
+
+          @for (
+            booking of bookings();
+            track booking.bookingId
+          ) {
+
+            <article class="booking-card">
+
+              <div class="booking-top">
+
+                <div>
+
+                  <span class="booking-number">
+                    {{ booking.bookingNumber }}
+                  </span>
+
+                  <h2>
+
+                    {{
+                      booking.event
+                        ?.eventName
+                        || 'Event Booking'
+                    }}
+
+                  </h2>
+
+                </div>
+
+
+                <span
+                  class="status"
+                  [class.confirmed]="
+                    booking.status
+                      .toLowerCase()
+                      === 'confirmed'
+                  "
+                  [class.cancelled]="
+                    booking.status
+                      .toLowerCase()
+                      === 'cancelled'
+                  "
+                >
+
+                  {{ booking.status }}
+
+                </span>
+
+              </div>
+
+
+              <div class="booking-details">
+
+                <div>
+
+                  <span>
+                    Event date
+                  </span>
+
+                  <strong>
+
+                    {{
+                      booking.event
+                        ?.eventDate
+                        | date:'dd MMM yyyy'
+                    }}
+
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    Seats
+                  </span>
+
+                  <strong>
+                    {{ booking.totalSeats }}
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    Total
+                  </span>
+
+                  <strong>
+                    $
+                    {{
+                      booking.totalAmount
+                        | number:'1.2-2'
+                    }}
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    Payment
+                  </span>
+
+                  <strong
+                    class="payment-status"
+                    [class.paid]="
+                      booking.paymentStatus
+                        .toLowerCase()
+                        === 'paid'
+                    "
+                  >
+
+                    {{ booking.paymentStatus }}
+
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div class="booking-footer">
+
+                <span>
+
+                  Created
+                  {{
+                    booking.bookingDate
+                      | date:'dd MMM yyyy, h:mm a'
+                  }}
+
+                </span>
+
+
+                @if (
+                  canCancel(booking)
+                ) {
+
+                  <button
+                    type="button"
+                    class="cancel-button"
+                    [disabled]="
+                      cancellingId()
+                        === booking.bookingId
+                    "
+                    (click)="
+                      cancelBooking(booking)
+                    "
+                  >
+
+                    @if (
+                      cancellingId()
+                        === booking.bookingId
+                    ) {
+
+                      Cancelling...
+
+                    }
+
+                    @else {
+
+                      Cancel booking
+
+                    }
+
+                  </button>
+
+                }
+
+              </div>
+
+            </article>
+
+          }
+
+        </section>
+
+      }
+
+    }
+
+  </main>
+
+</div>

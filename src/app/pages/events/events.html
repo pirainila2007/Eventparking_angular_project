@@ -1,0 +1,911 @@
+<div class="events-page">
+
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar">
+
+    <div class="brand">
+
+      <div class="brand-icon">
+        P
+      </div>
+
+      <div>
+
+        <strong>
+          ParkEvent
+        </strong>
+
+        <span>
+          Customer Portal
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <nav class="sidebar-nav">
+
+      <button
+        class="nav-item"
+        type="button"
+        (click)="goToDashboard()"
+      >
+
+        <span class="nav-icon">
+          ◈
+        </span>
+
+        Dashboard
+
+      </button>
+
+
+      <button
+        class="
+          nav-item
+          active
+        "
+        type="button"
+      >
+
+        <span class="nav-icon">
+          ◇
+        </span>
+
+        Events
+
+      </button>
+
+
+      <div class="nav-divider">
+      </div>
+
+
+      <div class="account-info">
+
+        <span>
+          Signed in as
+        </span>
+
+        <strong>
+          {{ fullName }}
+        </strong>
+
+        <small>
+          {{ email }}
+        </small>
+
+      </div>
+
+    </nav>
+
+
+    <button
+      class="logout-button"
+      type="button"
+      (click)="logout()"
+    >
+
+      ↪ Logout
+
+    </button>
+
+  </aside>
+
+
+  <!-- MAIN CONTENT -->
+
+  <main class="main-content">
+
+
+    <!-- HEADER -->
+
+    <header class="page-header">
+
+      <div>
+
+        <span class="page-kicker">
+          DISCOVER EVENTS
+        </span>
+
+        <h1>
+          Find your next event
+        </h1>
+
+        <p>
+          Browse upcoming events,
+          check ticket prices and
+          plan your parking in advance.
+        </p>
+
+      </div>
+
+
+      <div class="avatar">
+
+        {{
+          fullName
+            .charAt(0)
+            .toUpperCase()
+        }}
+
+      </div>
+
+    </header>
+
+
+    <!-- SEARCH -->
+
+    <section class="search-section">
+
+      <div class="search-box">
+
+        <span class="search-icon">
+          ⌕
+        </span>
+
+
+        <input
+          #searchInput
+          type="text"
+
+          placeholder="
+            Search concerts,
+            festivals or events...
+          "
+
+          [value]="searchTerm()"
+
+          (input)="
+            searchTerm.set(
+              searchInput.value
+            )
+          "
+
+          (keyup.enter)="
+            searchEvents()
+          "
+        >
+
+
+        @if (
+          searchTerm()
+        ) {
+
+          <button
+            class="clear-button"
+            type="button"
+            (click)="clearSearch()"
+          >
+            ✕
+          </button>
+
+        }
+
+
+        <button
+          class="search-button"
+          type="button"
+          (click)="searchEvents()"
+        >
+          Search
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- ERROR -->
+
+    @if (
+      errorMessage()
+    ) {
+
+      <div class="error-banner">
+
+        <span>
+          !
+        </span>
+
+        <div>
+
+          <strong>
+            Something went wrong
+          </strong>
+
+          <p>
+            {{ errorMessage() }}
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          (click)="loadUpcomingEvents()"
+        >
+          Retry
+        </button>
+
+      </div>
+
+    }
+
+
+    <!-- CATEGORY FILTER -->
+
+    @if (
+      !isLoading() &&
+      events().length > 0
+    ) {
+
+      <section class="filter-section">
+
+        <div>
+
+          <span class="filter-label">
+            Categories
+          </span>
+
+
+          <div class="category-list">
+
+            @for (
+              category of categories();
+              track category
+            ) {
+
+              <button
+                type="button"
+
+                class="category-button"
+
+                [class.active]="
+                  selectedCategory()
+                    === category
+                "
+
+                (click)="
+                  selectCategory(
+                    category
+                  )
+                "
+              >
+
+                {{ category }}
+
+              </button>
+
+            }
+
+          </div>
+
+        </div>
+
+
+        <span class="result-count">
+
+          {{
+            filteredEvents()
+              .length
+          }}
+
+          event(s)
+
+        </span>
+
+      </section>
+
+    }
+
+
+    <!-- LOADING -->
+
+    @if (
+      isLoading()
+    ) {
+
+      <section class="loading-state">
+
+        <div class="spinner">
+        </div>
+
+        <h2>
+          Finding events
+        </h2>
+
+        <p>
+          Loading the latest
+          available events...
+        </p>
+
+      </section>
+
+    }
+
+
+    <!-- EVENTS -->
+
+    @else {
+
+      @if (
+        filteredEvents()
+          .length === 0
+      ) {
+
+        <section class="empty-state">
+
+          <div class="empty-symbol">
+            ◇
+          </div>
+
+          <h2>
+            No events found
+          </h2>
+
+          <p>
+            Try another search
+            or browse all upcoming events.
+          </p>
+
+          <button
+            type="button"
+            (click)="clearSearch()"
+          >
+            View upcoming events
+          </button>
+
+        </section>
+
+      }
+
+
+      @else {
+
+        <section class="event-grid">
+
+          @for (
+            event of filteredEvents();
+            track event.eventId
+          ) {
+
+            <article class="event-card">
+
+
+              <!-- DECORATIVE EVENT HEADER -->
+
+              <div class="event-cover">
+
+                <div class="cover-pattern">
+                </div>
+
+
+                <span class="category-pill">
+
+                  {{
+                    event.category
+                      ?.categoryName
+                      || 'Event'
+                  }}
+
+                </span>
+
+
+                <div class="date-card">
+
+                  <strong>
+
+                    {{
+                      event.eventDate
+                        | date:'dd'
+                    }}
+
+                  </strong>
+
+                  <span>
+
+                    {{
+                      event.eventDate
+                        | date:'MMM'
+                    }}
+
+                  </span>
+
+                </div>
+
+
+                <div class="event-letter">
+
+                  {{
+                    event.eventName
+                      .charAt(0)
+                      .toUpperCase()
+                  }}
+
+                </div>
+
+              </div>
+
+
+              <!-- CONTENT -->
+
+              <div class="event-content">
+
+
+                <div class="event-heading">
+
+                  <div>
+
+                    <span class="event-status">
+
+                      <span class="status-dot">
+                      </span>
+
+                      {{ event.status }}
+
+                    </span>
+
+
+                    <h2>
+                      {{ event.eventName }}
+                    </h2>
+
+                  </div>
+
+                </div>
+
+
+                <p class="event-description">
+
+                  {{
+                    event.description
+                      || 'Event details available.'
+                  }}
+
+                </p>
+
+
+                <div class="event-details">
+
+
+                  <div>
+
+                    <span>
+                      Venue
+                    </span>
+
+                    <strong>
+
+                      {{
+                        event.venue
+                          ?.venueName
+                          || 'Venue'
+                      }}
+
+                    </strong>
+
+                  </div>
+
+
+                  <div>
+
+                    <span>
+                      Location
+                    </span>
+
+                    <strong>
+
+                      {{
+                        event.venue
+                          ?.location
+                          || '—'
+                      }}
+
+                    </strong>
+
+                  </div>
+
+
+                  <div>
+
+                    <span>
+                      Time
+                    </span>
+
+                    <strong>
+
+                      {{
+                        event.startTime
+                      }}
+
+                      –
+
+                      {{
+                        event.endTime
+                      }}
+
+                    </strong>
+
+                  </div>
+
+                </div>
+
+
+                <div class="price-row">
+
+
+                  <div class="price">
+
+                    <span>
+                      Ticket
+                    </span>
+
+                    <strong>
+
+                      {{
+                        event.ticketPrice
+                          | number:'1.2-2'
+                      }}
+
+                    </strong>
+
+                  </div>
+
+
+                  <div class="price">
+
+                    <span>
+                      Parking
+                    </span>
+
+                    <strong>
+
+                      {{
+                        event.parkingFee
+                          | number:'1.2-2'
+                      }}
+
+                    </strong>
+
+                  </div>
+
+
+                </div>
+
+
+                <button
+                  class="details-button"
+                  type="button"
+
+                  (click)="
+                    openEventDetails(
+                      event.eventId
+                    )
+                  "
+                >
+
+                  View event details
+
+                  <span>
+                    →
+                  </span>
+
+                </button>
+
+              </div>
+
+            </article>
+
+          }
+
+        </section>
+
+      }
+
+    }
+
+  </main>
+
+</div>
+
+
+<!-- DETAILS LOADING -->
+
+@if (
+  detailsLoading()
+) {
+
+  <div class="modal-overlay">
+
+    <div class="modal-loading">
+
+      <div class="spinner">
+      </div>
+
+      <p>
+        Loading event details...
+      </p>
+
+    </div>
+
+  </div>
+
+}
+
+
+<!-- EVENT DETAILS MODAL -->
+
+@if (
+  selectedEvent();
+  as event
+) {
+
+  <div
+    class="modal-overlay"
+    (click)="closeEventDetails()"
+  >
+
+
+    <article
+      class="event-modal"
+      (click)="
+        $event.stopPropagation()
+      "
+    >
+
+
+      <div class="modal-cover">
+
+        <span class="category-pill">
+
+          {{
+            event.category
+              ?.categoryName
+              || 'Event'
+          }}
+
+        </span>
+
+
+        <button
+          class="modal-close"
+          type="button"
+
+          (click)="
+            closeEventDetails()
+          "
+        >
+          ✕
+        </button>
+
+
+        <div class="modal-date">
+
+          <strong>
+
+            {{
+              event.eventDate
+                | date:'dd'
+            }}
+
+          </strong>
+
+          <span>
+
+            {{
+              event.eventDate
+                | date:'MMMM yyyy'
+            }}
+
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="modal-content">
+
+
+        <span class="event-status">
+
+          <span class="status-dot">
+          </span>
+
+          {{ event.status }}
+
+        </span>
+
+
+        <h2>
+          {{ event.eventName }}
+        </h2>
+
+
+        <p class="modal-description">
+
+          {{
+            event.description
+              || 'No description available.'
+          }}
+
+        </p>
+
+
+        <div class="modal-info-grid">
+
+
+          <div>
+
+            <span>
+              Venue
+            </span>
+
+            <strong>
+
+              {{
+                event.venue
+                  ?.venueName
+                  || '—'
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Location
+            </span>
+
+            <strong>
+
+              {{
+                event.venue
+                  ?.location
+                  || '—'
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Start time
+            </span>
+
+            <strong>
+              {{ event.startTime }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              End time
+            </span>
+
+            <strong>
+              {{ event.endTime }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Capacity
+            </span>
+
+            <strong>
+              {{ event.capacity }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Category
+            </span>
+
+            <strong>
+
+              {{
+                event.category
+                  ?.categoryName
+                  || '—'
+              }}
+
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="modal-price-box">
+
+          <div>
+
+            <span>
+              Ticket price
+            </span>
+
+            <strong>
+
+              {{
+                event.ticketPrice
+                  | number:'1.2-2'
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Parking fee
+            </span>
+
+            <strong>
+
+              {{
+                event.parkingFee
+                  | number:'1.2-2'
+              }}
+
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+          <button
+            class="secondary-button"
+            type="button"
+
+            (click)="
+              closeEventDetails()
+            "
+          >
+
+            Close
+
+          </button>
+
+
+          <div class="next-step-note">
+
+            Seat & parking reservation
+            will be available in the
+            next booking step.
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </article>
+
+  </div>
+
+}

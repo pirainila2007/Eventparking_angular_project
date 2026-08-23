@@ -1,0 +1,702 @@
+<div class="dashboard-page">
+
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar">
+
+    <div class="brand">
+
+      <div class="brand-icon">
+        P
+      </div>
+
+      <div>
+        <strong>
+          ParkEvent
+        </strong>
+
+        <span>
+          Customer Portal
+        </span>
+      </div>
+
+    </div>
+
+
+    <nav class="sidebar-nav">
+
+      <button
+        class="
+          nav-item
+          active
+        "
+        type="button"
+      >
+
+        <span class="nav-icon">
+          ◈
+        </span>
+
+        Dashboard
+
+      </button>
+
+
+      <div class="nav-divider">
+      </div>
+
+
+      <div class="nav-info">
+
+        <span>
+          Signed in as
+        </span>
+
+        <strong>
+          {{ fullName }}
+        </strong>
+
+        <small>
+          {{ email }}
+        </small>
+
+      </div>
+
+    </nav>
+
+
+    <button
+      class="sidebar-logout"
+      type="button"
+      (click)="logout()"
+    >
+
+      <span>
+        ↪
+      </span>
+
+      Logout
+
+    </button>
+
+  </aside>
+
+
+  <!-- MAIN -->
+
+  <main class="main-content">
+
+
+    <!-- HEADER -->
+
+    <header class="topbar">
+
+      <div>
+
+        <span class="page-kicker">
+          CUSTOMER DASHBOARD
+        </span>
+
+        <h1>
+          Welcome back,
+          {{ fullName }}
+        </h1>
+
+        <p>
+          Here's an overview of your
+          event parking activity.
+        </p>
+
+      </div>
+
+
+      <div class="topbar-actions">
+
+        <button
+          class="refresh-button"
+          type="button"
+          (click)="refresh()"
+          [disabled]="isLoading()"
+        >
+          ↻ Refresh
+        </button>
+
+
+        <div class="profile-avatar">
+
+          {{
+            fullName
+              .charAt(0)
+              .toUpperCase()
+          }}
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- ERROR -->
+
+    @if (errorMessage()) {
+
+      <section class="error-banner">
+
+        <span>
+          !
+        </span>
+
+        <div>
+
+          <strong>
+            Dashboard unavailable
+          </strong>
+
+          <p>
+            {{ errorMessage() }}
+          </p>
+
+        </div>
+
+        <button
+          type="button"
+          (click)="refresh()"
+        >
+          Try again
+        </button>
+
+      </section>
+
+    }
+
+
+    <!-- LOADING -->
+
+    @if (isLoading()) {
+
+      <section class="loading-state">
+
+        <div class="spinner">
+        </div>
+
+        <h2>
+          Loading your dashboard
+        </h2>
+
+        <p>
+          We're retrieving your
+          latest bookings and parking details.
+        </p>
+
+      </section>
+
+    }
+
+
+    @else if (dashboard(); as data) {
+
+
+      <!-- SUMMARY CARDS -->
+
+      <section class="summary-grid">
+
+
+        <article class="summary-card">
+
+          <div class="summary-icon purple">
+            B
+          </div>
+
+          <div>
+
+            <span>
+              Upcoming bookings
+            </span>
+
+            <strong>
+              {{
+                data
+                  .upcomingBookings
+                  .length
+              }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+          <div class="summary-icon green">
+            P
+          </div>
+
+          <div>
+
+            <span>
+              Reserved parking
+            </span>
+
+            <strong>
+              {{
+                data
+                  .reservedParking
+                  .length
+              }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+          <div class="summary-icon orange">
+            N
+          </div>
+
+          <div>
+
+            <span>
+              Unread notifications
+            </span>
+
+            <strong>
+              {{
+                data
+                  .unreadNotificationCount
+              }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+          <div class="summary-icon blue">
+            $
+          </div>
+
+          <div>
+
+            <span>
+              Recent payments
+            </span>
+
+            <strong>
+              $
+              {{
+                totalPaid()
+                  | number:'1.2-2'
+              }}
+            </strong>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <!-- MAIN GRID -->
+
+      <section class="dashboard-grid">
+
+
+        <!-- UPCOMING BOOKINGS -->
+
+        <article class="panel bookings-panel">
+
+
+          <div class="panel-header">
+
+            <div>
+
+              <span class="panel-kicker">
+                BOOKINGS
+              </span>
+
+              <h2>
+                Upcoming events
+              </h2>
+
+            </div>
+
+
+            <span class="count-chip">
+
+              {{
+                data
+                  .upcomingBookings
+                  .length
+              }}
+
+            </span>
+
+          </div>
+
+
+          @if (
+            data
+              .upcomingBookings
+              .length === 0
+          ) {
+
+            <div class="empty-state">
+
+              <div class="empty-icon">
+                ◇
+              </div>
+
+              <h3>
+                No upcoming bookings
+              </h3>
+
+              <p>
+                You don't have any
+                upcoming event bookings yet.
+              </p>
+
+            </div>
+
+          }
+
+          @else {
+
+            <div class="booking-list">
+
+              @for (
+                booking of
+                  data.upcomingBookings;
+                track booking.bookingId
+              ) {
+
+                <div class="booking-item">
+
+
+                  <div class="date-box">
+
+                    <strong>
+
+                      {{
+                        booking.eventDate
+                          | date:'dd'
+                      }}
+
+                    </strong>
+
+                    <span>
+
+                      {{
+                        booking.eventDate
+                          | date:'MMM'
+                      }}
+
+                    </span>
+
+                  </div>
+
+
+                  <div class="booking-info">
+
+                    <h3>
+                      {{ booking.eventName }}
+                    </h3>
+
+                    <p>
+                      Booking:
+                      {{ booking.bookingNumber }}
+                    </p>
+
+                    <div class="booking-meta">
+
+                      <span
+                        class="status-badge"
+                        [class.confirmed]="
+                          booking.status
+                            .toLowerCase()
+                            ===
+                            'confirmed'
+                        "
+                      >
+
+                        {{ booking.status }}
+
+                      </span>
+
+
+                      <strong>
+
+                        $
+                        {{
+                          booking.totalAmount
+                            | number:'1.2-2'
+                        }}
+
+                      </strong>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              }
+
+            </div>
+
+          }
+
+        </article>
+
+
+        <!-- PARKING -->
+
+        <article class="panel parking-panel">
+
+
+          <div class="panel-header">
+
+            <div>
+
+              <span class="panel-kicker">
+                PARKING
+              </span>
+
+              <h2>
+                Reserved spaces
+              </h2>
+
+            </div>
+
+            <span class="count-chip">
+
+              {{
+                data
+                  .reservedParking
+                  .length
+              }}
+
+            </span>
+
+          </div>
+
+
+          @if (
+            data
+              .reservedParking
+              .length === 0
+          ) {
+
+            <div class="empty-state">
+
+              <div class="empty-icon">
+                P
+              </div>
+
+              <h3>
+                No parking reserved
+              </h3>
+
+              <p>
+                Your reserved parking
+                slots will appear here.
+              </p>
+
+            </div>
+
+          }
+
+          @else {
+
+            <div class="parking-list">
+
+              @for (
+                parking of
+                  data.reservedParking;
+                track parking.bookingId
+              ) {
+
+                <div class="parking-item">
+
+                  <div class="parking-symbol">
+                    P
+                  </div>
+
+
+                  <div class="parking-info">
+
+                    <span>
+                      {{ parking.eventName }}
+                    </span>
+
+                    <strong>
+                      Slot
+                      {{ parking.slotNumber }}
+                    </strong>
+
+                  </div>
+
+
+                  <span class="reserved-badge">
+
+                    {{ parking.status }}
+
+                  </span>
+
+                </div>
+
+              }
+
+            </div>
+
+          }
+
+        </article>
+
+
+        <!-- PAYMENTS -->
+
+        <article class="panel payments-panel">
+
+
+          <div class="panel-header">
+
+            <div>
+
+              <span class="panel-kicker">
+                PAYMENTS
+              </span>
+
+              <h2>
+                Recent payments
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          @if (
+            data
+              .recentPayments
+              .length === 0
+          ) {
+
+            <div class="empty-state">
+
+              <div class="empty-icon">
+                $
+              </div>
+
+              <h3>
+                No recent payments
+              </h3>
+
+              <p>
+                Your latest payment
+                activity will appear here.
+              </p>
+
+            </div>
+
+          }
+
+          @else {
+
+            <div class="payment-table">
+
+              <div class="payment-row table-heading">
+
+                <span>
+                  Booking
+                </span>
+
+                <span>
+                  Date
+                </span>
+
+                <span>
+                  Status
+                </span>
+
+                <span>
+                  Amount
+                </span>
+
+              </div>
+
+
+              @for (
+                payment of
+                  data.recentPayments;
+                track payment.paymentId
+              ) {
+
+                <div class="payment-row">
+
+                  <strong>
+
+                    #{{ payment.bookingId }}
+
+                  </strong>
+
+
+                  <span>
+
+                    {{
+                      payment.paymentDate
+                        | date:'dd MMM yyyy'
+                    }}
+
+                  </span>
+
+
+                  <span
+                    class="payment-status"
+                    [class.completed]="
+                      payment.paymentStatus
+                        .toLowerCase()
+                        ===
+                        'completed'
+                    "
+                  >
+
+                    {{ payment.paymentStatus }}
+
+                  </span>
+
+
+                  <strong>
+
+                    $
+                    {{
+                      payment.amount
+                        | number:'1.2-2'
+                    }}
+
+                  </strong>
+
+                </div>
+
+              }
+
+            </div>
+
+          }
+
+        </article>
+
+
+      </section>
+
+    }
+
+  </main>
+
+</div>
