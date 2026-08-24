@@ -44,8 +44,7 @@
       </button>
 
 
-      <div class="nav-divider">
-      </div>
+      <div class="nav-divider"></div>
 
 
       <div class="account">
@@ -131,6 +130,7 @@
           ! {{ errorMessage() }}
         </span>
 
+
         <button
           type="button"
           (click)="loadBookings()"
@@ -147,8 +147,7 @@
 
       <section class="loading">
 
-        <div class="spinner">
-        </div>
+        <div class="spinner"></div>
 
         <h2>
           Loading your bookings
@@ -164,6 +163,8 @@
     }
 
     @else {
+
+      <!-- SUMMARY -->
 
       <section class="summary-grid">
 
@@ -225,9 +226,9 @@
       </section>
 
 
-      @if (
-        bookings().length === 0
-      ) {
+      <!-- EMPTY STATE -->
+
+      @if (bookings().length === 0) {
 
         <section class="empty-state">
 
@@ -244,6 +245,7 @@
             to start your first booking.
           </p>
 
+
           <button
             type="button"
             (click)="goToEvents()"
@@ -257,6 +259,8 @@
 
       @else {
 
+        <!-- BOOKING LIST -->
+
         <section class="booking-list">
 
           @for (
@@ -266,13 +270,18 @@
 
             <article class="booking-card">
 
+              <!-- TOP -->
+
               <div class="booking-top">
 
                 <div>
 
                   <span class="booking-number">
+
                     {{ booking.bookingNumber }}
+
                   </span>
+
 
                   <h2>
 
@@ -289,11 +298,13 @@
 
                 <span
                   class="status"
+
                   [class.confirmed]="
                     booking.status
                       .toLowerCase()
                       === 'confirmed'
                   "
+
                   [class.cancelled]="
                     booking.status
                       .toLowerCase()
@@ -307,6 +318,8 @@
 
               </div>
 
+
+              <!-- DETAILS -->
 
               <div class="booking-details">
 
@@ -349,11 +362,13 @@
                   </span>
 
                   <strong>
+
                     $
                     {{
                       booking.totalAmount
                         | number:'1.2-2'
                     }}
+
                   </strong>
 
                 </div>
@@ -367,6 +382,7 @@
 
                   <strong
                     class="payment-status"
+
                     [class.paid]="
                       booking.paymentStatus
                         .toLowerCase()
@@ -383,6 +399,8 @@
               </div>
 
 
+              <!-- FOOTER -->
+
               <div class="booking-footer">
 
                 <span>
@@ -396,40 +414,76 @@
                 </span>
 
 
-                @if (
-                  canCancel(booking)
-                ) {
+                <div class="booking-actions">
 
-                  <button
-                    type="button"
-                    class="cancel-button"
-                    [disabled]="
-                      cancellingId()
-                        === booking.bookingId
-                    "
-                    (click)="
-                      cancelBooking(booking)
-                    "
-                  >
+                  <!-- PAY NOW -->
 
-                    @if (
-                      cancellingId()
-                        === booking.bookingId
-                    ) {
+                  @if (
+                    booking.paymentStatus
+                      .toLowerCase()
+                      !== 'paid' &&
+                    booking.status
+                      .toLowerCase()
+                      !== 'cancelled' &&
+                    booking.status
+                      .toLowerCase()
+                      !== 'expired'
+                  ) {
 
-                      Cancelling...
+                    <button
+                      type="button"
+                      class="pay-now-button"
 
-                    }
+                      (click)="
+                        payBooking(booking)
+                      "
+                    >
 
-                    @else {
+                      Pay now
 
-                      Cancel booking
+                    </button>
 
-                    }
+                  }
 
-                  </button>
 
-                }
+                  <!-- CANCEL -->
+
+                  @if (canCancel(booking)) {
+
+                    <button
+                      type="button"
+                      class="cancel-button"
+
+                      [disabled]="
+                        cancellingId()
+                          === booking.bookingId
+                      "
+
+                      (click)="
+                        cancelBooking(booking)
+                      "
+                    >
+
+                      @if (
+                        cancellingId()
+                          === booking.bookingId
+                      ) {
+
+                        Cancelling...
+
+                      }
+
+                      @else {
+
+                        Cancel booking
+
+                      }
+
+                    </button>
+
+                  }
+
+                </div>
 
               </div>
 

@@ -1394,4 +1394,25 @@
     text-align: left;
   }
 
+  .book-event-button {
+  padding: 12px 20px;
+
+  border: 0;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #6976f4,
+      #5363ed
+    );
+
+  color: white;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
 }

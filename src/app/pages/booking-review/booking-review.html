@@ -1,0 +1,521 @@
+<div class="review-page">
+
+  <header class="topbar">
+
+    <div class="brand">
+
+      <div class="logo">
+        P
+      </div>
+
+      <div>
+        <strong>
+          ParkEvent
+        </strong>
+
+        <span>
+          Booking Review
+        </span>
+      </div>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="back-button"
+      (click)="editParking()"
+    >
+      ← Parking
+    </button>
+
+  </header>
+
+
+  <main class="page-container">
+
+    @if (isLoading()) {
+
+      <section class="loading-state">
+
+        <div class="spinner"></div>
+
+        <h2>
+          Preparing your booking
+        </h2>
+
+        <p>
+          Loading your selected
+          seats and parking...
+        </p>
+
+      </section>
+
+    }
+
+
+    @else if (
+      errorMessage() &&
+      !event()
+    ) {
+
+      <section class="error-state">
+
+        <h2>
+          Unable to continue
+        </h2>
+
+        <p>
+          {{ errorMessage() }}
+        </p>
+
+      </section>
+
+    }
+
+
+    @else if (
+      event();
+      as eventData
+    ) {
+
+      <div class="review-layout">
+
+        <!-- LEFT -->
+
+        <section class="review-main">
+
+          <div class="heading">
+
+            <span class="kicker">
+              FINAL REVIEW
+            </span>
+
+            <h1>
+              Review your booking
+            </h1>
+
+            <p>
+              Check your event,
+              seats and optional
+              parking before continuing.
+            </p>
+
+          </div>
+
+
+          @if (errorMessage()) {
+
+            <div class="error-message">
+
+              ! {{ errorMessage() }}
+
+            </div>
+
+          }
+
+
+          <!-- EVENT -->
+
+          <article class="review-card">
+
+            <div class="card-header">
+
+              <div>
+
+                <span>
+                  EVENT
+                </span>
+
+                <h2>
+                  {{ eventData.eventName }}
+                </h2>
+
+              </div>
+
+            </div>
+
+
+            <div class="event-details">
+
+              <div>
+
+                <span>
+                  Date
+                </span>
+
+                <strong>
+
+                  {{
+                    eventData.eventDate
+                      | date:
+                        'dd MMMM yyyy'
+                  }}
+
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Time
+                </span>
+
+                <strong>
+
+                  {{ eventData.startTime }}
+
+                  -
+
+                  {{ eventData.endTime }}
+
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Venue
+                </span>
+
+                <strong>
+
+                  {{
+                    eventData.venue
+                      ?.venueName
+                    || '—'
+                  }}
+
+                </strong>
+
+              </div>
+
+            </div>
+
+          </article>
+
+
+          <!-- SEATS -->
+
+          <article class="review-card">
+
+            <div class="card-header">
+
+              <div>
+
+                <span>
+                  SELECTED SEATS
+                </span>
+
+                <h2>
+                  {{
+                    selectedSeats().length
+                  }}
+                  seat(s)
+                </h2>
+
+              </div>
+
+
+              <button
+                type="button"
+                (click)="editSeats()"
+              >
+                Edit
+              </button>
+
+            </div>
+
+
+            <div class="seat-list">
+
+              @for (
+                seat of selectedSeats();
+                track seat.seatId
+              ) {
+
+                <div class="seat-row">
+
+                  <div>
+
+                    <strong>
+                      {{ seat.seatNumber }}
+                    </strong>
+
+                    <span>
+                      {{ seat.seatType }}
+                    </span>
+
+                  </div>
+
+
+                  <strong>
+
+                    $
+                    {{
+                      seat.price
+                        | number:'1.2-2'
+                    }}
+
+                  </strong>
+
+                </div>
+
+              }
+
+            </div>
+
+
+            <div class="sub-total">
+
+              <span>
+                Seat total
+              </span>
+
+              <strong>
+
+                $
+                {{
+                  seatTotal()
+                    | number:'1.2-2'
+                }}
+
+              </strong>
+
+            </div>
+
+          </article>
+
+
+          <!-- PARKING -->
+
+          <article class="review-card">
+
+            <div class="card-header">
+
+              <div>
+
+                <span>
+                  PARKING
+                </span>
+
+                <h2>
+                  Optional parking
+                </h2>
+
+              </div>
+
+
+              <button
+                type="button"
+                (click)="editParking()"
+              >
+                Edit
+              </button>
+
+            </div>
+
+
+            @if (
+              selectedParking();
+              as parking
+            ) {
+
+              <div class="parking-selection">
+
+                <div class="parking-icon">
+                  P
+                </div>
+
+
+                <div>
+
+                  <strong>
+                    {{ parking.slotNumber }}
+                  </strong>
+
+                  <span>
+                    {{ parking.vehicleType }}
+                  </span>
+
+                </div>
+
+
+                <strong class="parking-price">
+
+                  $
+                  {{
+                    parking.fee
+                      | number:'1.2-2'
+                  }}
+
+                </strong>
+
+              </div>
+
+            }
+
+            @else {
+
+              <div class="no-parking">
+
+                No parking selected.
+
+              </div>
+
+            }
+
+          </article>
+
+        </section>
+
+
+        <!-- RIGHT -->
+
+        <aside class="summary-card">
+
+          <span class="summary-kicker">
+            ORDER SUMMARY
+          </span>
+
+
+          <h2>
+            Booking total
+          </h2>
+
+
+          <div class="summary-row">
+
+            <span>
+              Seats
+            </span>
+
+            <strong>
+              {{ selectedSeats().length }}
+            </strong>
+
+          </div>
+
+
+          <div class="summary-row">
+
+            <span>
+              Seat amount
+            </span>
+
+            <strong>
+
+              $
+              {{
+                seatTotal()
+                  | number:'1.2-2'
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <div class="summary-row">
+
+            <span>
+              Parking
+            </span>
+
+            <strong>
+
+              $
+              {{
+                parkingTotal()
+                  | number:'1.2-2'
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <div class="grand-total">
+
+            <span>
+              Total amount
+            </span>
+
+            <strong>
+
+              $
+              {{
+                grandTotal()
+                  | number:'1.2-2'
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <div class="pending-note">
+
+            <strong>
+              Pending booking
+            </strong>
+
+            <p>
+              Payment is required
+              to confirm your booking.
+            </p>
+
+          </div>
+
+
+          <button
+            type="button"
+
+            class="confirm-button"
+
+            [disabled]="
+              isCreating()
+            "
+
+            (click)="
+              confirmBooking()
+            "
+          >
+
+            @if (
+              isCreating()
+            ) {
+
+              <span
+                class="small-spinner"
+              ></span>
+
+              Creating booking...
+
+            }
+
+            @else {
+
+              Confirm & continue to payment
+
+              <span>
+                →
+              </span>
+
+            }
+
+          </button>
+
+        </aside>
+
+      </div>
+
+    }
+
+  </main>
+
+</div>

@@ -345,7 +345,19 @@ export class Events implements OnInit {
       });
 
   }
+bookEvent(
+  eventId: number
+): void {
 
+  this.closeEventDetails();
+
+  this.router.navigate([
+    '/customer/booking',
+    eventId,
+    'seats'
+  ]);
+
+}
 
   closeEventDetails(): void {
 

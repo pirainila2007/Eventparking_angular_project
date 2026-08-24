@@ -1,0 +1,594 @@
+<div class="payment-page">
+
+  <header class="topbar">
+
+    <div
+      class="brand"
+      (click)="goToDashboard()"
+    >
+
+      <div class="brand-logo">
+        P
+      </div>
+
+      <div>
+        <strong>
+          ParkEvent
+        </strong>
+
+        <span>
+          Secure Payment
+        </span>
+      </div>
+
+    </div>
+
+
+    <div class="top-actions">
+
+      <span>
+        {{ fullName }}
+      </span>
+
+      <button
+        type="button"
+        (click)="logout()"
+      >
+        Logout
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <main class="payment-container">
+
+    <button
+      type="button"
+      class="back-button"
+      (click)="goToBookings()"
+    >
+      ← Back to bookings
+    </button>
+
+
+    @if (isLoading()) {
+
+      <section class="loading-state">
+
+        <div class="spinner">
+        </div>
+
+        <h2>
+          Preparing your payment
+        </h2>
+
+        <p>
+          Loading booking details...
+        </p>
+
+      </section>
+
+    }
+
+
+    @else if (errorMessage() && !booking()) {
+
+      <section class="error-card">
+
+        <div class="error-icon">
+          !
+        </div>
+
+        <h2>
+          Unable to continue
+        </h2>
+
+        <p>
+          {{ errorMessage() }}
+        </p>
+
+        <button
+          type="button"
+          (click)="goToBookings()"
+        >
+          Return to bookings
+        </button>
+
+      </section>
+
+    }
+
+
+    @else if (booking(); as booking) {
+
+      <section class="payment-layout">
+
+
+        <!-- LEFT SIDE -->
+
+        <div class="payment-main">
+
+          <div class="heading">
+
+            <span class="kicker">
+              PAYMENT CHECKOUT
+            </span>
+
+            <h1>
+              Complete your booking
+            </h1>
+
+            <p>
+              Choose a payment method
+              to confirm your reservation.
+            </p>
+
+          </div>
+
+
+          @if (errorMessage()) {
+
+            <div class="message error">
+              ! {{ errorMessage() }}
+            </div>
+
+          }
+
+
+          @if (successMessage()) {
+
+            <div class="message success">
+              ✓ {{ successMessage() }}
+            </div>
+
+          }
+
+
+          @if (!payment()) {
+
+            <article class="payment-method-card">
+
+              <div class="section-heading">
+
+                <span>
+                  STEP 1
+                </span>
+
+                <h2>
+                  Payment method
+                </h2>
+
+              </div>
+
+
+              <div class="method-grid">
+
+                <button
+                  type="button"
+
+                  class="method-card"
+
+                  [class.active]="
+                    selectedMethod()
+                    === 'Card'
+                  "
+
+                  (click)="
+                    selectMethod('Card')
+                  "
+                >
+
+                  <div class="method-icon">
+                    ▣
+                  </div>
+
+                  <div>
+
+                    <strong>
+                      Card
+                    </strong>
+
+                    <span>
+                      Debit or credit card
+                    </span>
+
+                  </div>
+
+                  <div class="radio">
+                  </div>
+
+                </button>
+
+
+                <button
+                  type="button"
+
+                  class="method-card"
+
+                  [class.active]="
+                    selectedMethod()
+                    === 'Cash'
+                  "
+
+                  (click)="
+                    selectMethod('Cash')
+                  "
+                >
+
+                  <div class="method-icon">
+                    $
+                  </div>
+
+                  <div>
+
+                    <strong>
+                      Cash
+                    </strong>
+
+                    <span>
+                      Simulated cash payment
+                    </span>
+
+                  </div>
+
+                  <div class="radio">
+                  </div>
+
+                </button>
+
+              </div>
+
+
+              <div class="simulation-note">
+
+                <strong>
+                  Payment Simulation
+                </strong>
+
+                <p>
+                  This student project does not
+                  contact a real payment gateway.
+                  No real card details are required.
+                </p>
+
+              </div>
+
+
+              <button
+                type="button"
+
+                class="pay-button"
+
+                [disabled]="
+                  !canPay() ||
+                  isPaying()
+                "
+
+                (click)="payNow()"
+              >
+
+                @if (isPaying()) {
+
+                  <span
+                    class="small-spinner"
+                  >
+                  </span>
+
+                  Processing payment...
+
+                }
+
+                @else {
+
+                  Complete payment
+
+                  <span>
+                    →
+                  </span>
+
+                }
+
+              </button>
+
+
+              @if (!canPay()) {
+
+                <p class="cannot-pay">
+
+                  This booking cannot
+                  accept another payment.
+
+                </p>
+
+              }
+
+            </article>
+
+          }
+
+
+          @else if (
+            payment();
+            as paymentResult
+          ) {
+
+            <article class="success-card">
+
+              <div class="success-icon">
+                ✓
+              </div>
+
+
+              <span class="success-kicker">
+                PAYMENT SUCCESSFUL
+              </span>
+
+
+              <h2>
+                Booking confirmed
+              </h2>
+
+
+              <p>
+                Your payment has been
+                completed successfully.
+              </p>
+
+
+              <div class="transaction-box">
+
+                <span>
+                  Transaction ID
+                </span>
+
+                <strong>
+                  {{
+                    paymentResult
+                      .transactionId
+                  }}
+                </strong>
+
+              </div>
+
+
+              <div class="success-details">
+
+                <div>
+
+                  <span>
+                    Payment ID
+                  </span>
+
+                  <strong>
+                    #{{ paymentResult.paymentId }}
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    Method
+                  </span>
+
+                  <strong>
+                    {{
+                      paymentResult
+                        .paymentMethod
+                    }}
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    Status
+                  </span>
+
+                  <strong class="completed">
+                    {{
+                      paymentResult
+                        .paymentStatus
+                    }}
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    Date
+                  </span>
+
+                  <strong>
+                    {{
+                      paymentResult
+                        .paymentDate
+                        | date:
+                          'dd MMM yyyy, h:mm a'
+                    }}
+                  </strong>
+
+                </div>
+
+              </div>
+
+            <button
+                type="button"
+                class="receipt-button"
+                (click)="viewReceipt()"
+            >
+                View receipt
+            </button>
+            
+              <button
+                type="button"
+                class="bookings-button"
+                (click)="goToBookings()"
+              >
+                View my bookings
+              </button>
+
+            </article>
+
+          }
+
+        </div>
+
+
+        <!-- RIGHT SUMMARY -->
+
+        <aside class="summary-card">
+
+          <span class="summary-kicker">
+            ORDER SUMMARY
+          </span>
+
+
+          <div class="event-block">
+
+            <div class="event-letter">
+
+              {{
+                (
+                  booking.event
+                    ?.eventName
+                  || 'E'
+                )
+                  .charAt(0)
+                  .toUpperCase()
+              }}
+
+            </div>
+
+
+            <div>
+
+              <h2>
+
+                {{
+                  booking.event
+                    ?.eventName
+                  || 'Event Booking'
+                }}
+
+              </h2>
+
+              <p>
+
+                {{
+                  booking.event
+                    ?.eventDate
+                    | date:
+                      'dd MMMM yyyy'
+                }}
+
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="summary-info">
+
+            <div>
+
+              <span>
+                Booking number
+              </span>
+
+              <strong>
+                {{ booking.bookingNumber }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Total seats
+              </span>
+
+              <strong>
+                {{ booking.totalSeats }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Booking status
+              </span>
+
+              <strong>
+                {{ booking.status }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Payment status
+              </span>
+
+              <strong>
+                {{ booking.paymentStatus }}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div class="total-row">
+
+            <span>
+              Total amount
+            </span>
+
+            <strong>
+              $
+              {{
+                booking.totalAmount
+                  | number:'1.2-2'
+              }}
+            </strong>
+
+          </div>
+
+
+          <div class="secure-note">
+
+            <span>
+              ✓
+            </span>
+
+            <p>
+              Amount is calculated
+              by the backend from
+              your booking.
+            </p>
+
+          </div>
+
+        </aside>
+
+      </section>
+
+    }
+
+  </main>
+
+</div>

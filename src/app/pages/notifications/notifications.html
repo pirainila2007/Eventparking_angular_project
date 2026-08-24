@@ -1,0 +1,385 @@
+<div class="notifications-page">
+
+  <aside class="sidebar">
+
+    <div class="brand">
+
+      <div class="brand-icon">
+        P
+      </div>
+
+      <div>
+        <strong>ParkEvent</strong>
+        <span>Customer Portal</span>
+      </div>
+
+    </div>
+
+
+    <nav class="sidebar-nav">
+
+      <button
+        type="button"
+        class="nav-item"
+        (click)="goToDashboard()"
+      >
+        ◈ Dashboard
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        (click)="goToEvents()"
+      >
+        ◇ Events
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        (click)="goToBookings()"
+      >
+        ▣ My Bookings
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item active"
+      >
+        ◉ Notifications
+
+        @if (unreadCount() > 0) {
+
+          <span class="nav-badge">
+            {{ unreadCount() }}
+          </span>
+
+        }
+
+      </button>
+
+
+      <div class="nav-divider"></div>
+
+
+      <div class="account">
+
+        <small>
+          SIGNED IN AS
+        </small>
+
+        <strong>
+          {{ fullName }}
+        </strong>
+
+        <span>
+          {{ email }}
+        </span>
+
+      </div>
+
+    </nav>
+
+
+    <button
+      type="button"
+      class="logout-button"
+      (click)="logout()"
+    >
+      ↪ Logout
+    </button>
+
+  </aside>
+
+
+  <main class="main-content">
+
+    <header class="page-header">
+
+      <div>
+
+        <span class="kicker">
+          NOTIFICATIONS
+        </span>
+
+        <h1>
+          Stay updated
+        </h1>
+
+        <p>
+          Booking, payment and
+          system updates appear here.
+        </p>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="refresh-button"
+        [disabled]="isLoading()"
+        (click)="loadNotifications()"
+      >
+        ↻ Refresh
+      </button>
+
+    </header>
+
+
+    @if (errorMessage()) {
+
+      <div class="error-message">
+        ! {{ errorMessage() }}
+      </div>
+
+    }
+
+
+    @if (isLoading()) {
+
+      <section class="loading-state">
+
+        <div class="spinner"></div>
+
+        <h2>
+          Loading notifications
+        </h2>
+
+        <p>
+          Checking your latest updates...
+        </p>
+
+      </section>
+
+    }
+
+    @else {
+
+      <section class="summary-grid">
+
+        <article>
+
+          <span>
+            All notifications
+          </span>
+
+          <strong>
+            {{ notifications().length }}
+          </strong>
+
+        </article>
+
+
+        <article>
+
+          <span>
+            Unread
+          </span>
+
+          <strong>
+            {{ unreadCount() }}
+          </strong>
+
+        </article>
+
+
+        <article>
+
+          <span>
+            Read
+          </span>
+
+          <strong>
+            {{ readCount() }}
+          </strong>
+
+        </article>
+
+      </section>
+
+
+      @if (
+        notifications().length === 0
+      ) {
+
+        <section class="empty-state">
+
+          <div class="empty-icon">
+            ◉
+          </div>
+
+          <h2>
+            You're all caught up
+          </h2>
+
+          <p>
+            New booking and payment
+            updates will appear here.
+          </p>
+
+        </section>
+
+      }
+
+      @else {
+
+        <section class="notification-list">
+
+          @for (
+            notification of notifications();
+            track notification.notificationId
+          ) {
+
+            <article
+              class="notification-card"
+
+              [class.unread]="
+                !notification.isRead
+              "
+            >
+
+              <div
+                class="notification-icon"
+              >
+
+                @switch (
+                  notification.type
+                    .toLowerCase()
+                ) {
+
+                  @case ('payment') {
+                    $
+                  }
+
+                  @case ('booking') {
+                    B
+                  }
+
+                  @case ('expired') {
+                    !
+                  }
+
+                  @default {
+                    N
+                  }
+
+                }
+
+              </div>
+
+
+              <div class="notification-content">
+
+                <div class="notification-header">
+
+                  <div>
+
+                    <span class="type">
+                      {{ notification.type }}
+                    </span>
+
+                    <h2>
+
+                      {{
+                        notification.title
+                        ||
+                        notification.type
+                        ||
+                        'Notification'
+                      }}
+
+                    </h2>
+
+                  </div>
+
+
+                  @if (!notification.isRead) {
+
+                    <span class="unread-dot">
+                    </span>
+
+                  }
+
+                </div>
+
+
+                <p>
+                  {{ notification.message }}
+                </p>
+
+
+                <div class="notification-footer">
+
+                  <span>
+
+                    {{
+                      notification.createdAt
+                        | date:
+                          'dd MMM yyyy, h:mm a'
+                    }}
+
+                  </span>
+
+
+                  @if (!notification.isRead) {
+
+                    <button
+                      type="button"
+
+                      [disabled]="
+                        markingId()
+                          === notification.notificationId
+                      "
+
+                      (click)="
+                        markAsRead(notification)
+                      "
+                    >
+
+                      @if (
+                        markingId()
+                          === notification.notificationId
+                      ) {
+
+                        Saving...
+
+                      }
+
+                      @else {
+
+                        Mark as read
+
+                      }
+
+                    </button>
+
+                  }
+
+                  @else {
+
+                    <span class="read-label">
+                      ✓ Read
+                    </span>
+
+                  }
+
+                </div>
+
+              </div>
+
+            </article>
+
+          }
+
+        </section>
+
+      }
+
+    }
+
+  </main>
+
+</div>

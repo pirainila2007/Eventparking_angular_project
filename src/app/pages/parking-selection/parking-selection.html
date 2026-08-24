@@ -1,0 +1,348 @@
+<div class="parking-page">
+
+  <header class="topbar">
+
+    <div class="brand">
+
+      <div class="logo">
+        P
+      </div>
+
+      <div>
+        <strong>ParkEvent</strong>
+        <span>Parking Reservation</span>
+      </div>
+
+    </div>
+
+    <button
+      type="button"
+      class="back-button"
+      (click)="goBack()"
+    >
+      ← Seats
+    </button>
+
+  </header>
+
+
+  <main class="page-container">
+
+    @if (isLoading()) {
+
+      <section class="loading">
+
+        <div class="spinner"></div>
+
+        <h2>
+          Loading parking spaces
+        </h2>
+
+        <p>
+          Checking available parking...
+        </p>
+
+      </section>
+
+    }
+
+    @else if (
+      errorMessage() &&
+      !event()
+    ) {
+
+      <section class="error-state">
+
+        <h2>
+          Unable to continue
+        </h2>
+
+        <p>
+          {{ errorMessage() }}
+        </p>
+
+        <button
+          type="button"
+          (click)="goBack()"
+        >
+          Back to seats
+        </button>
+
+      </section>
+
+    }
+
+    @else if (
+      event();
+      as eventData
+    ) {
+
+      <div class="parking-layout">
+
+        <section class="parking-main">
+
+          <div class="page-heading">
+
+            <span class="kicker">
+              PARKING SELECTION
+            </span>
+
+            <h1>
+              Choose your parking
+            </h1>
+
+            <p>
+              Select one available parking
+              space for
+              {{ eventData.eventName }}.
+              Parking is optional.
+            </p>
+
+          </div>
+
+
+          @if (errorMessage()) {
+
+            <div class="error-message">
+              {{ errorMessage() }}
+            </div>
+
+          }
+
+
+          <div class="legend">
+
+            <div>
+              <span class="dot available"></span>
+              Available
+            </div>
+
+            <div>
+              <span class="dot selected"></span>
+              Selected
+            </div>
+
+            <div>
+              <span class="dot occupied"></span>
+              Unavailable
+            </div>
+
+          </div>
+
+
+          @if (
+            parkingSlots().length === 0
+          ) {
+
+            <div class="empty-state">
+
+              <div class="parking-icon">
+                P
+              </div>
+
+              <h2>
+                No parking spaces configured
+              </h2>
+
+              <p>
+                You can continue your booking
+                without parking.
+              </p>
+
+              <button
+                type="button"
+                (click)="skipParking()"
+              >
+                Continue without parking
+              </button>
+
+            </div>
+
+          }
+
+          @else {
+
+            <div class="parking-grid">
+
+              @for (
+                slot of parkingSlots();
+                track slot.parkingSlotId
+              ) {
+
+                <button
+                  type="button"
+
+                  class="parking-slot"
+
+                  [class.selected]="
+                    isSelected(
+                      slot.parkingSlotId
+                    )
+                  "
+
+                  [class.unavailable]="
+                    !isAvailable(slot)
+                  "
+
+                  [disabled]="
+                    !isAvailable(slot)
+                  "
+
+                  (click)="
+                    selectParking(slot)
+                  "
+                >
+
+                  <div class="slot-icon">
+                    P
+                  </div>
+
+                  <strong>
+                    {{ slot.slotNumber }}
+                  </strong>
+
+                  <span>
+                    {{ slot.vehicleType }}
+                  </span>
+
+                  <small>
+                    $
+                    {{
+                      slot.fee
+                        | number:'1.2-2'
+                    }}
+                  </small>
+
+                </button>
+
+              }
+
+            </div>
+
+          }
+
+        </section>
+
+
+        <aside class="summary-panel">
+
+          <span class="summary-kicker">
+            BOOKING PROGRESS
+          </span>
+
+          <h2>
+            Reservation summary
+          </h2>
+
+
+          <div class="summary-row">
+
+            <span>
+              Event
+            </span>
+
+            <strong>
+              {{ eventData.eventName }}
+            </strong>
+
+          </div>
+
+
+          <div class="summary-row">
+
+            <span>
+              Selected seats
+            </span>
+
+            <strong>
+              {{ selectedSeatIds().length }}
+            </strong>
+
+          </div>
+
+
+          <div class="summary-row">
+
+            <span>
+              Parking available
+            </span>
+
+            <strong>
+              {{ availableCount() }}
+            </strong>
+
+          </div>
+
+
+          @if (
+            selectedParking();
+            as parking
+          ) {
+
+            <div class="selected-box">
+
+              <span>
+                SELECTED PARKING
+              </span>
+
+              <div>
+
+                <strong>
+                  {{ parking.slotNumber }}
+                </strong>
+
+                <small>
+                  {{ parking.vehicleType }}
+                </small>
+
+              </div>
+
+              <strong class="parking-price">
+
+                $
+                {{
+                  parking.fee
+                    | number:'1.2-2'
+                }}
+
+              </strong>
+
+            </div>
+
+          }
+
+          @else {
+
+            <div class="no-parking">
+              No parking selected
+            </div>
+
+          }
+
+
+          <button
+            type="button"
+            class="continue-button"
+            (click)="continueBooking()"
+          >
+            Continue booking →
+          </button>
+
+
+          <button
+            type="button"
+            class="skip-button"
+            (click)="skipParking()"
+          >
+            Skip parking
+          </button>
+
+        </aside>
+
+      </div>
+
+    }
+
+  </main>
+
+</div>

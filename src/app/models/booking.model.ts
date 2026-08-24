@@ -39,3 +39,23 @@ export interface CustomerBooking {
   event?: BookingEvent | null;
   payment?: BookingPayment | null;
 }
+export interface CreateBookingRequest {
+  customerId: number;
+  eventId: number;
+  totalSeats: number;
+  totalAmount: number;
+  status: string;
+}
+
+export interface CreateBookingResponse {
+  bookingId: number;
+  bookingNumber: string;
+  customerId: number;
+  eventId: number;
+  bookingDate: string;
+  totalSeats: number;
+  totalAmount: number;
+  status: string;
+  paymentStatus: string;
+  holdExpiresAt?: string | null;
+}

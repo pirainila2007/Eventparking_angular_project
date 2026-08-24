@@ -347,6 +347,17 @@ export class MyBookings
 
   }
 
+    payBooking(
+  booking: CustomerBooking
+): void {
+
+  this.router.navigate([
+    '/customer/payment',
+    booking.bookingId
+  ]);
+
+}
+
 
   logout(): void {
 

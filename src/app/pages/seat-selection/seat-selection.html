@@ -1,0 +1,434 @@
+<div class="seat-page">
+
+  <header class="topbar">
+
+    <div
+      class="brand"
+      (click)="goBack()"
+    >
+
+      <div class="logo">
+        P
+      </div>
+
+      <div>
+        <strong>
+          ParkEvent
+        </strong>
+
+        <span>
+          Seat Reservation
+        </span>
+      </div>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="back-button"
+      (click)="goBack()"
+    >
+      ← Events
+    </button>
+
+  </header>
+
+
+  <main class="page-container">
+
+
+    @if (isLoading()) {
+
+      <section class="loading">
+
+        <div class="spinner">
+        </div>
+
+        <h2>
+          Loading seat map
+        </h2>
+
+        <p>
+          Checking the latest
+          seat availability...
+        </p>
+
+      </section>
+
+    }
+
+
+    @else if (errorMessage() && !event()) {
+
+      <section class="error-state">
+
+        <h2>
+          Unable to load seats
+        </h2>
+
+        <p>
+          {{ errorMessage() }}
+        </p>
+
+
+        <button
+          type="button"
+          (click)="goBack()"
+        >
+          Back to events
+        </button>
+
+      </section>
+
+    }
+
+
+    @else if (event(); as eventData) {
+
+      <div class="booking-layout">
+
+
+        <!-- LEFT -->
+
+        <section class="seat-area">
+
+
+          <header class="page-heading">
+
+            <span class="kicker">
+              SELECT YOUR SEATS
+            </span>
+
+
+            <h1>
+              {{ eventData.eventName }}
+            </h1>
+
+
+            <p>
+              Choose one or more available
+              seats for your event booking.
+            </p>
+
+          </header>
+
+
+          @if (errorMessage()) {
+
+            <div class="error-message">
+
+              {{ errorMessage() }}
+
+            </div>
+
+          }
+
+
+          <!-- LEGEND -->
+
+          <div class="legend">
+
+            <div>
+              <span
+                class="legend-box available"
+              >
+              </span>
+
+              Available
+            </div>
+
+
+            <div>
+              <span
+                class="legend-box selected"
+              >
+              </span>
+
+              Selected
+            </div>
+
+
+            <div>
+              <span
+                class="legend-box unavailable"
+              >
+              </span>
+
+              Booked
+            </div>
+
+          </div>
+
+
+          <!-- STAGE -->
+
+          <div class="stage-area">
+
+            <div class="stage">
+              EVENT STAGE
+            </div>
+
+            <span>
+              Front
+            </span>
+
+          </div>
+
+
+          @if (
+            seats().length === 0
+          ) {
+
+            <div class="empty-seats">
+
+              <h2>
+                No seats available
+              </h2>
+
+              <p>
+                The seat map has not
+                been configured for
+                this event yet.
+              </p>
+
+            </div>
+
+          }
+
+          @else {
+
+            <div class="seat-grid">
+
+              @for (
+                seat of seats();
+                track seat.seatId
+              ) {
+
+                <button
+                  type="button"
+
+                  class="seat"
+
+                  [class.selected]="
+                    isSelected(
+                      seat.seatId
+                    )
+                  "
+
+                  [class.unavailable]="
+                    !isAvailable(seat)
+                  "
+
+                  [disabled]="
+                    !isAvailable(seat)
+                  "
+
+                  (click)="
+                    toggleSeat(seat)
+                  "
+                >
+
+                  <span>
+                    {{ seat.seatNumber }}
+                  </span>
+
+
+                  <small>
+                    {{ seat.seatType }}
+                  </small>
+
+                </button>
+
+              }
+
+            </div>
+
+          }
+
+        </section>
+
+
+        <!-- RIGHT SUMMARY -->
+
+        <aside class="summary-panel">
+
+
+          <span class="summary-kicker">
+            BOOKING SUMMARY
+          </span>
+
+
+          <h2>
+            Your seats
+          </h2>
+
+
+          <div class="event-summary">
+
+            <span>
+              Event
+            </span>
+
+            <strong>
+              {{ eventData.eventName }}
+            </strong>
+
+          </div>
+
+
+          <div class="stats">
+
+            <div>
+
+              <span>
+                Available
+              </span>
+
+              <strong>
+                {{ availableCount() }}
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Selected
+              </span>
+
+              <strong>
+                {{
+                  selectedSeats().length
+                }}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          @if (
+            selectedSeats().length === 0
+          ) {
+
+            <div class="no-selection">
+
+              No seats selected yet.
+
+            </div>
+
+          }
+
+          @else {
+
+            <div class="selected-list">
+
+              @for (
+                seat of selectedSeats();
+                track seat.seatId
+              ) {
+
+                <div class="selected-item">
+
+                  <div>
+
+                    <strong>
+                      {{ seat.seatNumber }}
+                    </strong>
+
+                    <span>
+                      {{ seat.seatType }}
+                    </span>
+
+                  </div>
+
+
+                  <strong>
+
+                    {{
+                      seat.price
+                        | number:'1.2-2'
+                    }}
+
+                  </strong>
+
+                </div>
+
+              }
+
+            </div>
+
+
+            <button
+              type="button"
+              class="clear-button"
+              (click)="clearSelection()"
+            >
+              Clear selection
+            </button>
+
+          }
+
+
+          <div class="total">
+
+            <span>
+              Seat total
+            </span>
+
+            <strong>
+
+              $
+              {{
+                totalAmount()
+                  | number:'1.2-2'
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <button
+            type="button"
+
+            class="continue-button"
+
+            [disabled]="
+              selectedSeats()
+                .length === 0
+            "
+
+            (click)="
+              continueToParking()
+            "
+          >
+
+            Continue to parking
+
+            <span>
+              →
+            </span>
+
+          </button>
+
+
+          <p class="parking-note">
+
+            Parking is optional.
+            You can skip it
+            on the next step.
+
+          </p>
+
+        </aside>
+
+      </div>
+
+    }
+
+  </main>
+
+</div>

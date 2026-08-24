@@ -11,6 +11,8 @@ import {
 } from 'rxjs';
 
 import {
+  CreateBookingRequest,
+  CreateBookingResponse,
   CustomerBooking
 } from '../models/booking.model';
 
@@ -26,6 +28,18 @@ export class BookingService {
   constructor(
     private http: HttpClient
   ) {}
+
+
+  createBooking(
+    request: CreateBookingRequest
+  ): Observable<CreateBookingResponse> {
+
+    return this.http.post<CreateBookingResponse>(
+      this.apiUrl,
+      request
+    );
+
+  }
 
 
   getCustomerHistory(

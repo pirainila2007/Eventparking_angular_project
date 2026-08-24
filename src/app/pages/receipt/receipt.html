@@ -1,0 +1,473 @@
+<div class="receipt-page">
+
+  <header class="topbar no-print">
+
+    <div
+      class="brand"
+      (click)="goToDashboard()"
+    >
+
+      <div class="brand-logo">
+        P
+      </div>
+
+      <div>
+
+        <strong>
+          ParkEvent
+        </strong>
+
+        <span>
+          Payment Receipt
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="back-button"
+      (click)="goToBookings()"
+    >
+      ← My Bookings
+    </button>
+
+  </header>
+
+
+  <main class="receipt-container">
+
+    @if (isLoading()) {
+
+      <section class="loading-state">
+
+        <div class="spinner">
+        </div>
+
+        <h2>
+          Preparing receipt
+        </h2>
+
+        <p>
+          Loading payment and booking
+          information...
+        </p>
+
+      </section>
+
+    }
+
+
+    @else if (errorMessage()) {
+
+      <section class="error-state">
+
+        <div class="error-icon">
+          !
+        </div>
+
+        <h2>
+          Receipt unavailable
+        </h2>
+
+        <p>
+          {{ errorMessage() }}
+        </p>
+
+
+        <button
+          type="button"
+          (click)="goToBookings()"
+        >
+          Back to bookings
+        </button>
+
+      </section>
+
+    }
+
+
+    @else if (
+      payment();
+      as paymentData
+    ) {
+
+      @if (
+        booking();
+        as bookingData
+      ) {
+
+        <section class="receipt-card">
+
+
+          <!-- RECEIPT HEADER -->
+
+          <div class="receipt-header">
+
+            <div class="receipt-brand">
+
+              <div class="receipt-logo">
+                P
+              </div>
+
+
+              <div>
+
+                <h1>
+                  ParkEvent
+                </h1>
+
+                <p>
+                  Event Parking Reservation
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div class="paid-badge">
+
+              <span>
+                ✓
+              </span>
+
+              PAID
+
+            </div>
+
+          </div>
+
+
+          <!-- SUCCESS -->
+
+          <div class="receipt-success">
+
+            <div class="success-icon">
+              ✓
+            </div>
+
+            <span>
+              PAYMENT SUCCESSFUL
+            </span>
+
+            <h2>
+              Thank you for your payment
+            </h2>
+
+            <p>
+              Your event booking has been
+              confirmed successfully.
+            </p>
+
+          </div>
+
+
+          <!-- TRANSACTION -->
+
+          <div class="transaction-section">
+
+            <span>
+              TRANSACTION ID
+            </span>
+
+            <strong>
+              {{ paymentData.transactionId }}
+            </strong>
+
+          </div>
+
+
+          <!-- EVENT -->
+
+          <section class="receipt-section">
+
+            <div class="section-title">
+
+              <span>
+                EVENT DETAILS
+              </span>
+
+            </div>
+
+
+            <div class="event-info">
+
+              <div class="event-letter">
+
+                {{
+                  (
+                    bookingData.event
+                      ?.eventName
+                    || 'E'
+                  )
+                    .charAt(0)
+                    .toUpperCase()
+                }}
+
+              </div>
+
+
+              <div>
+
+                <h3>
+
+                  {{
+                    bookingData.event
+                      ?.eventName
+                    || 'Event Booking'
+                  }}
+
+                </h3>
+
+
+                <p>
+
+                  {{
+                    bookingData.event
+                      ?.eventDate
+                      | date:
+                        'EEEE, dd MMMM yyyy'
+                  }}
+
+                </p>
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- BOOKING INFORMATION -->
+
+          <section class="receipt-section">
+
+            <div class="section-title">
+
+              <span>
+                BOOKING INFORMATION
+              </span>
+
+            </div>
+
+
+            <div class="detail-grid">
+
+              <div>
+
+                <span>
+                  Booking Number
+                </span>
+
+                <strong>
+                  {{ bookingData.bookingNumber }}
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Booking ID
+                </span>
+
+                <strong>
+                  #{{ bookingData.bookingId }}
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Total Seats
+                </span>
+
+                <strong>
+                  {{ bookingData.totalSeats }}
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Booking Status
+                </span>
+
+                <strong class="confirmed">
+
+                  {{ bookingData.status }}
+
+                </strong>
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- PAYMENT INFORMATION -->
+
+          <section class="receipt-section">
+
+            <div class="section-title">
+
+              <span>
+                PAYMENT INFORMATION
+              </span>
+
+            </div>
+
+
+            <div class="detail-grid">
+
+              <div>
+
+                <span>
+                  Payment ID
+                </span>
+
+                <strong>
+                  #{{ paymentData.paymentId }}
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Payment Method
+                </span>
+
+                <strong>
+                  {{ paymentData.paymentMethod }}
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Payment Status
+                </span>
+
+                <strong class="completed">
+
+                  {{ paymentData.paymentStatus }}
+
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Payment Date
+                </span>
+
+                <strong>
+
+                  {{
+                    paymentData.paymentDate
+                      | date:
+                        'dd MMM yyyy, h:mm a'
+                  }}
+
+                </strong>
+
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- TOTAL -->
+
+          <div class="receipt-total">
+
+            <div>
+
+              <span>
+                Total paid
+              </span>
+
+              <p>
+                Payment completed successfully
+              </p>
+
+            </div>
+
+
+            <strong>
+
+              $
+              {{
+                paymentData.amount
+                  | number:'1.2-2'
+              }}
+
+            </strong>
+
+          </div>
+
+
+          <!-- FOOTER -->
+
+          <footer class="receipt-footer">
+
+            <p>
+              This receipt was generated
+              electronically by ParkEvent.
+            </p>
+
+            <span>
+              Keep this receipt for your records.
+            </span>
+
+          </footer>
+
+        </section>
+
+
+        <!-- BUTTONS -->
+
+        <div class="receipt-actions no-print">
+
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="goToBookings()"
+          >
+            ← My Bookings
+          </button>
+
+
+          <button
+            type="button"
+            class="print-button"
+            (click)="printReceipt()"
+          >
+            Print / Save PDF
+          </button>
+
+        </div>
+
+      }
+
+    }
+
+  </main>
+
+</div>
